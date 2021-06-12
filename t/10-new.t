@@ -25,6 +25,7 @@ use constant {
         push ( @exp_delays, $exp_delays[ -1 ] + $exp_delays[ -2 ] );
     }
 
+    my $time_so_far = 0;
     foreach my $this_delay (@exp_delays) {
 
         my $start  = [gettimeofday];
@@ -32,6 +33,7 @@ use constant {
         my $stop   = [gettimeofday];
 
         my $diff = tv_interval( $start, $stop );
+        $time_so_far += $this_delay;
 
         is( $status, 1, 'Good status back from first delay' );
         cmp_ok( $diff, '>', $this_delay, "First sleep at least $this_delay" );
@@ -40,6 +42,8 @@ use constant {
             $this_delay + STEP_SIZE,
             "First sleep less than " . ($this_delay + STEP_SIZE)
         );
+
+        is ( $fib->duration, $time_so_far, 'Durations match' );
     }
 
     my $status = $fib->delay;

@@ -53,7 +53,7 @@ sub new
 
         push ( @array, $array[-2] + $array[-1] );
     }
-    my $self = { delay => \@array };
+    my $self = { delay => \@array, duration => 0 };
 
     bless $self, $class;
     return $self;
@@ -68,9 +68,17 @@ sub delay
         return undef;   #  We're out of retries.
     }
 
+    $self->{ duration } += $self->{delay}->[0];
     sleep shift @{ $self->{delay} };
 
     return 1;           #  We just did a delay.
+}
+
+sub duration
+{
+    my $self = shift;
+
+    return $self->{ duration };
 }
 
 =head1 AUTHOR

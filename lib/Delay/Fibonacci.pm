@@ -37,9 +37,31 @@ if you don't export anything, such as for a purely object-oriented module.
 
 =cut
 
+our $ErrStr;
+
 sub new
 {
     my ( $class, $args ) = @_;
+
+    #  Check that the arguments are rational. The step needs to be non-zero and
+    #  positive, and the retry count should be greater than one.
+
+    my @errors;
+    if ( defined $args->{step} && $args->{step} <= 0 ) {
+
+        push( @errors, 'Step size must be positive' );
+    }
+
+    if ( defined $args->{retry} && $args->{retry} < 2 ) {
+
+        push( @errors, 'Retry count must be greater than one' );
+    }
+
+    if ( @errors ) {
+
+        $ErrStr = join ( ' / ', @errors );
+        return undef;
+    }
 
     #  Initialize the step size and the retry count ..
 

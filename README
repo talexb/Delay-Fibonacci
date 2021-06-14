@@ -1,15 +1,10 @@
 Delay-Fibonacci
 
-The README is used to introduce the module and provide instructions on
-how to install the module, any machine dependencies it may have (for
-example C compilers and installed libraries) and any other information
-that should be provided before the module is installed.
-
-A README file is required for CPAN modules since CPAN extracts the README
-file from a module distribution so that people browsing the archive
-can use it to get an idea of the module's uses. It is usually a good idea
-to provide version information here so that people can decide whether
-fixes for the module are worth downloading.
+This module implements a Fibonacci backoff delay that I needed to solve a
+client problem. Rather than fail when a network resource was temporarily
+unavailable, I plan to use this module to pause after a failure, and then
+retry.  Instead of coding that logic into the script, I decided this
+functionality needed to go into a module.
 
 
 INSTALLATION

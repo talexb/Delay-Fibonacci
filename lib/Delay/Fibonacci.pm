@@ -8,7 +8,7 @@ use warnings;
 
 =head1 NAME
 
-Delay::Fibonacci - The great new Delay::Fibonacci!
+Delay::Fibonacci - Useful for retries, implements a Fibonacci backoff delay
 
 =head1 VERSION
 
@@ -21,19 +21,67 @@ our $VERSION = '0.01';
 
 =head1 SYNOPSIS
 
-Quick summary of what the module does.
+This module implements a delay with Fibonacci backoff.
+
+In the example below, a step size of .1 and a retry count of 5 will result in
+delays of .1, .1, .2, .3 and .5 seconds.
 
 Perhaps a little code snippet.
 
     use Delay::Fibonacci;
 
-    my $foo = Delay::Fibonacci->new();
+    #  Start with a step size of .1 seconds and 5 retries.
+    #  We'll track the operation status as well as the
+    #  fibonacci status.
+
+    my $fib = Delay::Fibonacci->new({ step => .1, retry => 5});
+    my ( $op_status, $fib_status );
+
+    #  This loop does the operation, and if it fails, we call
+    #  the delay method to pause.
+
+    #  If the operation succeeded, we're done. Otherwise,
+    #  we loop again as long as the delay returns OK, because
+    #  we still have retries left.
+
+    #  If we fall out of the do .. while loop, that means we
+    #  failed again, and all of the retries were exhausted.
+
+    do {
+
+      #  This value is defined if the operation succeeds.
+      $op_status = operation_that_may_fail();
+
+      if ( !defined $op_status ) { $fib_status = $fib->delay; }
+
+    } while ( !$op_status && $fib_status );
+
+    if ( !defined $op_status ) {
+
+      $log->error ( "Failed operation after " . $fib->duration .
+        " seconds" );
+    }
+
     ...
 
-=head1 EXPORT
+If the operation failed after all of those retries, the total time spent can be
+retrieved, in case that's useful information.
 
-A list of functions that can be exported.  You can delete this section
-if you don't export anything, such as for a purely object-oriented module.
+=head1 METHODS
+
+=head2 Delay::Fibonacci->new( ... )
+
+This method accepts two arguments: step (step size in fractional seconds) and
+retry (retry count). A non-zero step and a retry count of less than two cause
+errors that can be found in $Delay::Fibonacci::ErrStr.
+
+The default step size is 1 second, and the default retry count is 5.
+
+The Time::HiRes module is used to deal with sub-second times.
+
+=head2 Delay::Fibonacci->duration
+
+This method reports the total amount of time delayed.
 
 =cut
 
